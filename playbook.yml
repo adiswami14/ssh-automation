@@ -1,0 +1,13 @@
+---
+
+- name: SSH automation playbook
+  hosts: localhost
+  connection: local
+  remote_user: vagrant # I will have to use vagrant here
+
+  tasks:
+  - name: SSH Key Generation
+    ansible.builtin.ping:
+
+  - name: SSH Key Deployment
+    ansible.builtin.ping:
