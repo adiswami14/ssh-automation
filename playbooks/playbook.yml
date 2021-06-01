@@ -1,0 +1,32 @@
+---
+# Playbook for SSH Key generation
+- name: SSH key generation playbook
+  hosts: localhost
+  connection: local
+  # remote_user: vagrant # I will have to use vagrant here
+
+  tasks:
+  - name: SSH Key Generation
+    community.crypto.openssh_keypair:
+      path: ~/.ssh/id_rsa_myproject
+      type: rsa
+      size: 4096
+      state: present
+      force: no
+
+
+# Playbook for SSH Key deployment
+- name: SSH Key Deployment playbook
+  hosts: all
+  become: yes
+  
+  tasks:
+  - name: Create sample user
+    user:
+      name: user
+      shell: /bin/bash
+      groups: sudo
+      append: yes
+      password: "{{ 'password' | password_hash('sha512') }}"
+
+  - name: Copy user over to sudo group
