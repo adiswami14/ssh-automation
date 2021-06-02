@@ -3,7 +3,6 @@
 - name: SSH key generation playbook
   hosts: localhost
   connection: local
-  # remote_user: vagrant # I will have to use vagrant here
 
   tasks:
   - name: SSH Key Generation
@@ -25,8 +24,11 @@
     user:
       name: user
       shell: /bin/bash
-      groups: sudo
       append: yes
       password: "{{ 'password' | password_hash('sha512') }}"
 
-  - name: Copy user over to sudo group
+  - name: Deploying SSH key
+    ansible.posix.authorized_key:
+      user: user
+      key: "{{ lookup('file', '~/.ssh/id_rsa_myproject') }}"
+      state: present
