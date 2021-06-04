@@ -7,25 +7,31 @@
   tasks:
   - name: SSH Key Generation
     community.crypto.openssh_keypair:
-      path: ~/.ssh/id_rsa_myproject
+      path: ~/.ssh/id_rsa_myproject # creates a file in .ssh directory called id_rsa_myproject.pub in which ssh key is stored
       type: rsa
       size: 4096
-      state: present
-      force: no
+      state: present # if present, don't create new file
+      force: no 
 
 
 # Playbook for SSH Key deployment
 - name: SSH Key Deployment playbook
-  hosts: all
-  become: yes
+  hosts: mock_servers
+  become: yes # allows user to 'become' another user (in this case we would become the sample user once we log in)
   
   tasks:
   - name: Create sample user
-    user:
+    ansible.builtin.user:  # I could also have used the generate_ssh_key param here, but decided to go with a separate playbook for that
       name: user
       shell: /bin/bash
+      group: sudo # adding a sample user to sudo group
       append: yes
-      password: "{{ 'password' | password_hash('sha512') }}"
+      password: "{{ 'password' | password_hash('sha512') }}" # default password set
+
+  - name: Add user to sudoers file
+    ansible.builtin.copy:
+      dest: /etc/sudoers.d/user
+      content: "user ALL=(ALL) ALL" # essentially makes the 'user' sample user a sudo-level verified user
 
   - name: Deploying SSH key
     ansible.posix.authorized_key:
